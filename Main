@@ -1,0 +1,136 @@
+import string
+import speech_recognition as s_r
+import webbrowser as web
+import os
+print(s_r.__version__)
+
+print(s_r.Microphone.list_microphone_names())
+r = s_r.Recognizer()
+my_mic = s_r.Microphone(device_index=0)
+def audio(): 
+    while True:
+        words = ''
+        try:
+            with my_mic as source:
+                audio = r.listen(source)
+            
+            words = r.recognize_google(audio).split(' ')
+            
+        except:
+            pass
+        if len(words) > 1 and words[0] in ['elephas','elephant','elephants','Eliquis','Elvis']:
+            key = words[1]
+            print(key)
+            if key in ['temperature', 'weather', 'temp']:
+                web.open_new_tab('https://www.google.com/search?q=temperature&sxsrf=ALiCzsaHajmGz9TX_0hz_OaaGrx6pVoF0g%3A1672341793246&source=hp&ei=IemtY5SpDKnX5NoPr4mJ6Ac&iflsig=AJiK0e8AAAAAY633MZyLuvNqR-2Z2HCHGO0U5zlWxSPN&oq=temp&gs_lcp=Cgdnd3Mtd2l6EAMYAjILCC4QgAQQsQMQ1AIyDgguEIAEELEDEIMBENQCMgsIABCABBCxAxCDATILCC4Q1AIQsQMQgAQyBQgAEIAEMgUIABCABDILCC4QgAQQxwEQrwEyDggAEIAEELEDEIMBEMkDMgUIABCABDIFCAAQgAQ6BAgjECc6DgguEIAEELEDEMcBENEDOgsILhCABBDHARDRAzoRCC4QgAQQsQMQgwEQxwEQ0QM6CAguELEDEIMBOggILhCABBCxAzoICC4QgAQQ1AI6FAguEIAEELEDEIMBEMcBENEDENQCUABYqwJgnRhoAHAAeACAAVyIAaYCkgEBNJgBAKABAQ&sclient=gws-wiz')
+            if key in ['close','clothes','end','and']:
+                os.system("taskkill /im chrome.exe /f")
+            if len(words) > 2 and key in ['show','search','find','Google']:
+                web.open_new_tab(f'https://www.google.com/search?q={" ".join(words[2:])}')
+            if len(words) > 2 and key in ['light', 'brightness']:
+                number = words[2]
+                check = {'won':1,'one':1,'two':2,'to':2,'too':2,'three':3,'four':4,'for':4,'five':5,'six':6,'seven':7,'eight':8,'ate':8,'nine':9,'zero':0,'off':0}
+                try:
+                    number = check[number]
+                except:
+                    number = int(number)
+                global brightness
+                print(f'Setting Brightness to {number}')
+                brightness = number / 10
+            if len(words) > 2 and key in ['color', 'shade']:
+                try_color = words[2]
+                check = {'red':'red','read':'red','yellow':'yellow','orange':'yellow','green':'green','aqua':'aqua','teal':'aqua','blue':'blue','blew':'blue','purple':'purple','grey':'grey','gray':'grey','white':'grey','black':'grey'}
+                try:
+                    try_color = check[try_color]
+                    global color_index
+                    print(f'Setting Color to {try_color}')
+                    color_index = colors_dict.index(try_color)
+                except:
+                    pass
+                
+import threading
+threading.Thread(target=audio).start()
+
+
+import pygame
+
+pygame.init()
+
+width  = 200
+height = 0 
+x = 300
+
+surface = pygame.display.set_mode((10000, 10000), pygame.FULLSCREEN)
+# surface = pygame.display.set_mode((400, 400))
+pygame.display.init()
+s = .7
+colors_dict = ['grey', 'red', 'yellow', 'green', 'aqua', 'blue', 'purple']
+colors = [(1, 1, 1), (1, s, s), (1, 1, s), (s, 1, s), (s, 1, 1), (s, s, 1), (1, s, 1)]
+# Changing surface color
+surface.fill(colors[5])
+size = 300
+pygame.draw.circle(surface, (180,180,255), (x,size), size)
+pygame.draw.circle(surface, (0,0,0), (x,size), size - 25)
+pygame.draw.circle(surface, (230,230,255), (x,size), size-50)
+
+color_index = 0
+pygame.display.flip()
+
+brightness = .9
+color_index = 5
+
+running = True
+
+import numpy
+from pynput.keyboard import Key, Listener
+shift = False
+
+
+
+
+while running:
+    for event in pygame.event.get():
+
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            running = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                running = False
+        
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LSHIFT:
+                shift = True
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LSHIFT:
+                shift = False
+
+        if event.type == pygame.KEYDOWN:
+            if shift:
+                if event.key in range(48, 58):
+                    value = event.key - 48
+                    
+                    brightness = value / 10
+
+                    
+            else:
+                if event.key in range(48, 55):
+                    
+                    color_index = event.key - 48
+                    
+                   
+    scale = numpy.multiply(brightness, colors[color_index])
+    inv_color  = numpy.multiply(scale, 80)
+    inside_scale = (175,175,175) + inv_color
+    inside_color = numpy.multiply(brightness, inside_scale)
+    outside_color = numpy.multiply(scale, 200)
+    
+    pygame.draw.circle(surface, outside_color, (x,size), size)
+    pygame.draw.circle(surface, (0,0,0), (x,size), size-25)
+    pygame.draw.circle(surface, inside_color, (x,size), size-50)
+    
+    pygame.display.flip()
+    
+        
